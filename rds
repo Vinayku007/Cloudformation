@@ -1,0 +1,53 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Creating RDS instance step-by-step.
+
+Parameters:
+  DbClass: 
+    Type: String 
+    Description: Defining DB Instance Class 
+    AllowedValues: 
+      - db.m5d.large # Ensure this is supported in your AWS region
+    Default: db.m5d.large
+
+Resources:
+  DbSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Creating Security Group For RDS Instance
+      VpcId: vpc-0527f7fd92eccc30c
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 3306
+          ToPort: 3306
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name 
+          Value: Rds-SecurityGroup 
+
+  RdsDBSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: Subnet group for RDS
+      SubnetIds: 
+        - subnet-02f0290fa659ea33d
+        - subnet-060b33fcc8eb408a0
+        - subnet-0a5e06ed2c4395aa6
+      Tags:
+        - Key: Name
+          Value: RdsSubnets
+
+  MyRdsInstance:
+    Type: AWS::RDS::DBInstance
+    DeletionPolicy: Delete
+    Properties:
+      AllocatedStorage: 20
+      BackupRetentionPeriod: 0
+      DBInstanceClass: !Ref DbClass
+      Engine: mysql
+      MasterUsername: dbadmin
+      MasterUserPassword: 123456789  # Consider using Secrets Manager instead
+      MultiAZ: false
+      PubliclyAccessible: true
+      DBSubnetGroupName: !Ref RdsDBSubnetGroup
+      VPCSecurityGroups:
+        - !Ref DbSecurityGroup
