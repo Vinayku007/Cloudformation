@@ -1,0 +1,93 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Creating third time vpc
+Resources:
+  MyVpc: 
+   Type: AWS::EC2::VPC
+   Properties:
+     CidrBlock: 10.0.0.0/16
+     Tags: 
+       - Key: Name 
+         Value: Cf-vpc
+  
+  MySubnet:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: 
+        Ref: MyVpc
+      CidrBlock: 10.0.0.0/24
+      Tags:
+        - Key: Name
+          Value: Cf-Subnet
+
+  MyRouteTable:
+    Type: AWS::EC2::RouteTable
+    Properties:
+      Tags: 
+        - Key: Name 
+          Value: Cf-RT
+      VpcId: 
+        Ref: MyVpc
+
+  MyInternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: Name
+          Value: My-Ig
+  
+  VPCGatewayAttachment:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      InternetGatewayId:
+        Ref: MyInternetGateway
+      VpcId: 
+        Ref MyVpc
+
+ 
+   
+  InternetRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: 
+        Ref: MyRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId:
+        Ref: MyInternetGateway
+
+  MySubnetRouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId:
+        Ref: MySubnet
+      RouteTableId:
+        Ref: MyRouteTable  
+  
+  MyEC2Instance:
+    Type: AWS::EC2::Instance
+    DependsOn:
+      - MyVpc
+      - MySubnet
+      - MyRouteTable 
+    Properties:
+      ImageId: ami-06b21ccaeff8cd686
+      SubnetId: 
+        Ref: MySubnet   
+      InstanceType: t2.micro 
+      Tags:
+        - Key: Name
+          Value: My-instance
+
+  MySecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Creating security group
+      VpcId: 
+        Ref: MyVpc
+      SecurityGroupIngress:
+        IpProtocol: tcp
+        FromPort: 80
+        ToPort: 80
+        CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: Mysg-80       
