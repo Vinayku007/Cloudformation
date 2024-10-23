@@ -51,3 +51,80 @@ Resources:
       DBSubnetGroupName: !Ref RdsDBSubnetGroup
       VPCSecurityGroups:
         - !Ref DbSecurityGroup
+
+
+# second modified code #
+
+AWSTemplateFormatVersion: 2010-09-09
+Description: Creating cloudformation template step by step.
+Parameters:
+  DbClass:
+    Description: Config-Instance-class
+    Type: String
+    Default: db.t3.micro
+    AllowedValues:
+      - db.t4g.micro
+      - db.t3.micro
+
+# Creating security group for rds instance #
+Resources:
+  SecurityGroupForRdsInstance:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Creating security group port no 3306 for rds instance
+      VpcId: vpc-0527f7fd92eccc30c
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 3306
+          ToPort: 3306
+          CidrIp: 0.0.0.0/0 
+      Tags:
+        - Key: Name
+          Value: Security Group for Rds Instance
+
+ # Creating subnet Group for Rds instance #         
+  
+
+  SubnetGroupforRdsInstance:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: Creating subnets for rds instance # Required
+      SubnetIds: # Required
+        - subnet-02f0290fa659ea33d
+        - subnet-060b33fcc8eb408a0
+        - subnet-0a5e06ed2c4395aa6
+      Tags: 
+        - Key: Name
+          Value: Subnet For Rds Instance    
+ 
+    # Creating RDS Instance #
+  RdsInstance:
+    Type: AWS::RDS::DBInstance
+    DeletionPolicy: Delete
+    Properties:
+      AllocatedStorage: 20
+      DBInstanceClass: !Ref DbClass
+      BackupRetentionPeriod: 0
+      DBSubnetGroupName: !Ref SubnetGroupforRdsInstance
+      Engine: mysql
+      MasterUsername: vinayinstance
+      MasterUserPassword: 123456789
+      MultiAZ: false
+      PubliclyAccessible: true
+      VPCSecurityGroups:
+        - !Ref SecurityGroupForRdsInstance
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
