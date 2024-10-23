@@ -1,0 +1,69 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Creating cloudformation template step by step
+Parameters:
+  DbClass:
+    Description: Config-Instance-class
+    Type: String
+  MasterUserName:
+    Description: User Name For the Db Instance
+    Type: String
+  MasterUserPassword:
+    Description: Password for the Rds Instance
+    Type: String
+  MultiAZ:
+    Description: true or false
+    Type: String
+    AllowedValues:
+      - true
+      - false
+  AllocatedStorage:
+    Description: Storage capacity for the Rds Instance
+    Type: Number
+
+# Creating security group for RDS instance #
+Resources:
+  SecurityGroupForRdsInstance:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Creating security group port no 3306 for RDS instance
+      VpcId: vpc-0527f7fd92eccc30c
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 3306
+          ToPort: 3306
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: Security Group for RDS Instance
+
+  # Creating subnet Group for RDS instance #
+  SubnetGroupforRdsInstance:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: Creating subnets for RDS instance
+      SubnetIds:
+        - subnet-02f0290fa659ea33d
+        - subnet-060b33fcc8eb408a0
+        - subnet-0a5e06ed2c4395aa6
+      Tags:
+        - Key: Name
+          Value: Subnet For RDS Instance
+
+  # Creating RDS Instance #
+  RdsInstance:
+    Type: AWS::RDS::DBInstance
+    DeletionPolicy: Delete
+    Properties:
+      AllocatedStorage: !Ref AllocatedStorage
+      DBInstanceClass: !Ref DbClass
+      BackupRetentionPeriod: 0
+      DBSubnetGroupName: !Ref SubnetGroupforRdsInstance
+      Engine: mysql
+      MasterUsername: !Ref MasterUserName
+      MasterUserPassword: !Ref MasterUserPassword
+      MultiAZ: !Ref MultiAZ
+      PubliclyAccessible: true
+      VPCSecurityGroups:
+        - !Ref SecurityGroupForRdsInstance
+
+ 
