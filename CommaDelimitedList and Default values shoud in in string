@@ -36,11 +36,11 @@ Parameters:
     Default: 20
     ConstraintDescription: AllocatedStorage cannot be less than 20 or greater than 25.
   SecurityGroupPorts:
-    Type: CommaDelimitedList
+    Type: CommaDelimitedList                                                                   # very very importants things  #
     Description: "port no as a list:<Web-server-instance>,<Database-port>"
     Default: "80,3306"
   DbSubnets:
-    Type: CommaDelimitedList
+    Type: CommaDelimitedList                                                                  # very very importants things #
     Description: "Db subnet ids as a list: <Subnet1>,<Subnet2>,...."
 
 Resources:
