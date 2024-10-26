@@ -85,6 +85,7 @@ Resources:
           Value: Subnet For RDS Instance
 
   # Creating RDS Instance #
+
   RdsInstance:
     Type: AWS::RDS::DBInstance
     DeletionPolicy: Delete
@@ -100,3 +101,176 @@ Resources:
       PubliclyAccessible: true
       VPCSecurityGroups:
         - !Ref SecurityGroupForRdsInstance
+
+
+
+
+#............................................................................................................................................................................#
+#............................................................................................................................................................................#
+
+Example 1: Selecting a Subnet ID for an EC2 Instance
+
+Parameters:
+  SubnetIds:
+    Type: CommaDelimitedList
+    Default: "subnet-11111,subnet-22222,subnet-33333"
+
+Resources:
+  MyEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      SubnetId: !Select [ 1, !Ref SubnetIds ]
+      ImageId: ami-0abcdef1234567890
+      InstanceType: t2.micro
+
+
+Example 2: Choosing an AMI ID from a List
+
+Parameters:
+  AMIIds:
+    Type: CommaDelimitedList
+    Default: "ami-11111111,ami-22222222,ami-33333333"
+
+Resources:
+  MyInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Select [ 0, !Ref AMIIds ]
+      InstanceType: t2.micro
+
+Example 3: Selecting Availability Zones for Auto Scaling
+
+Parameters:
+  AvailabilityZones:
+    Type: CommaDelimitedList
+    Default: "us-west-1a,us-west-1b,us-west-1c"
+
+Resources:
+  MyAutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      VPCZoneIdentifier:
+        - !Select [ 0, !Ref AvailabilityZones ]
+        - !Select [ 1, !Ref AvailabilityZones ]
+      LaunchConfigurationName: MyLaunchConfig
+      MinSize: 1
+      MaxSize: 5
+
+Example 4: Using Select for Security Group IDs
+
+Parameters:
+  SecurityGroupIds:
+    Type: CommaDelimitedList
+    Default: "sg-11111,sg-22222,sg-33333"
+
+Resources:
+  MyInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      SecurityGroupIds:
+        - !Select [ 2, !Ref SecurityGroupIds ]
+      ImageId: ami-0abcdef1234567890
+      InstanceType: t2.micro
+
+Example 5: Choosing a Port from a List
+
+Parameters:
+  AllowedPorts:
+    Type: CommaDelimitedList
+    Default: "80,443,8080"
+
+Resources:
+  MySecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow specific ports
+      VpcId: vpc-12345
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: !Select [ 0, !Ref AllowedPorts ]
+          ToPort: !Select [ 0, !Ref AllowedPorts ]
+          CidrIp: 0.0.0.0/0
+
+
+Example 6: Setting SNS Topic Attributes
+
+Parameters:
+  TopicAttributes:
+    Type: CommaDelimitedList
+    Default: "DisplayName=MyTopic,DeliveryPolicy"
+
+Resources:
+  MySNSTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      DisplayName: !Select [ 0, !Split [ '=', !Select [ 0, !Ref TopicAttributes ] ] ]
+
+Example 7: Selecting a Backup Window for RDS
+
+Parameters:
+  BackupWindows:
+    Type: CommaDelimitedList
+    Default: "00:00-02:00,02:00-04:00,04:00-06:00"
+
+Resources:
+  MyDBInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBInstanceClass: db.t3.medium
+      Engine: mysql
+      BackupRetentionPeriod: 7
+      PreferredBackupWindow: !Select [ 1, !Ref BackupWindows ]
+      AllocatedStorage: 100
+      MasterUsername: admin
+      MasterUserPassword: password
+
+Example 8: Using Select for Route Table IDs
+
+Parameters:
+  RouteTableIds:
+    Type: CommaDelimitedList
+    Default: "rtb-12345,rtb-67890,rtb-abcdef"
+
+Resources:
+  MyRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Select [ 0, !Ref RouteTableIds ]
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: igw-12345678
+
+Example 9: Choosing Elastic IPs for NAT Gateway
+
+Parameters:
+  ElasticIPs:
+    Type: CommaDelimitedList
+    Default: "eipalloc-12345,eipalloc-67890"
+
+Resources:
+  MyNatGateway:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !Select [ 0, !Ref ElasticIPs ]
+      SubnetId: subnet-0123456789abcdef0
+
+Example 10: Specifying Log Group Names
+
+Parameters:
+  LogGroups:
+    Type: CommaDelimitedList
+    Default: "MyAppLogs,MySecurityLogs,MyAuditLogs"
+
+Resources:
+  MyLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Select [ 2, !Ref LogGroups ]
+
+
+
+
+
+
+
+
+
