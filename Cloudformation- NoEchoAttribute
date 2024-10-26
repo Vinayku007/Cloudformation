@@ -14,13 +14,13 @@ Parameters:
     Default: Vinaykumar143
     MinLength: 13
     AllowedPattern:  '[A-Z0-9][a-zA-Z0-9]*'
-    NoEcho: True  #  No Echo Attribute Passwd is not visible #
+    NoEcho: True                                                               #  No Echo Attribute Passwd is not visible #
   MasterUserPassword:
     Description: Password for the Rds Instance
     Type: String
     MaxLength: 10
     Default: 123456789
-    NoEcho: True # No Echo Attribue which means password is not visible #
+    NoEcho: True                                                             # No Echo Attribue which means password is not visible #
   MultiAZ:
     Description: true or false
     Type: String
