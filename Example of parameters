@@ -1,0 +1,419 @@
+
+# Examples od the cloudformation parameter constraints #
+
+1. AllowedValues
+
+Parameters:
+  InstanceType:
+    Description: EC2 instance type
+    Type: String
+    AllowedValues:
+      - t2.micro
+      - t2.small
+      - t2.medium
+
+2. AllowedPattern
+
+Parameters:
+  DatabasePassword:
+    Description: Password for the database
+    Type: String
+    NoEcho: True
+    AllowedPattern: '[a-zA-Z0-9]*'
+    ConstraintDescription: must contain only alphanumeric characters.
+
+
+3. MinLength and MaxLength
+
+Parameters:
+  DatabaseUser:
+    Description: Username for the database
+    Type: String
+    MinLength: 5
+    MaxLength: 15
+
+4. MinValue and MaxValue
+
+Parameters:
+  InstanceCount:
+    Description: Number of instances
+    Type: Number
+    MinValue: 1
+    MaxValue: 10
+    Default: 2
+    ConstraintDescription: must be between 1 and 10.
+
+# 5. ConstraintDescription
+
+Parameters:
+  BucketName:
+    Description: S3 Bucket name
+    Type: String
+    AllowedPattern: '[a-z0-9-]*'
+    ConstraintDescription: must be a lowercase alphanumeric string with hyphens.
+
+# 6. Default
+
+Parameters:
+  Environment:
+    Description: Environment
+    Type: String
+    Default: production
+
+# 7. AllowedValues for Region
+
+Parameters:
+  Region:
+    Description: AWS Region
+    Type: String
+    AllowedValues:
+      - us-east-1
+      - us-west-2
+      - eu-west-1
+
+8. MaxValue with Default
+
+Parameters:
+  MaxInstances:
+    Description: Maximum number of instances
+    Type: Number
+    Default: 5
+    MaxValue: 10
+
+
+9.  MinValue with Default
+
+Parameters:
+  MinInstances:
+    Description: Minimum number of instances
+    Type: Number
+    Default: 1
+    MinValue: 1
+
+10. MinLength
+
+Parameters:
+  ShortName:
+    Description: Short name for resource
+    Type: String
+    MinLength: 3
+
+11. NoEcho
+
+Parameters:
+  SecureToken:
+    Description: Secure token for API access
+    Type: String
+    NoEcho: True
+
+12. Type and AllowedValues
+
+Parameters:
+  InstanceType:
+    Description: The EC2 instance type
+    Type: String
+    AllowedValues:
+      - t2.micro
+      - t2.small
+    ConstraintDescription: must be a valid EC2 instance type.
+
+13. AllowedPattern for Email
+
+Parameters:
+  NotificationEmail:
+    Description: Email address for notifications
+    Type: String
+    AllowedPattern: '^[\w\-\.]+@([\w\-]+\.)+[\w\-]{2,4}$'
+    ConstraintDescription: must be a valid email address.
+
+14. ConstraintDescription for Number
+
+Parameters:
+  StorageSize:
+    Description: Size of the storage
+    Type: Number
+    MinValue: 10
+    MaxValue: 1000
+    ConstraintDescription: must be between 10 and 1000 GB.
+
+15. Default List<Number>
+
+Parameters:
+  SecurityPorts:
+    Type: CommaDelimitedList
+    Default: 22,80,443
+
+16. AllowedPattern for Domain Name
+
+Parameters:
+  DomainName:
+    Description: The domain name for the application
+    Type: String
+    AllowedPattern: '^[a-zA-Z0-9-]{3,63}$'
+    ConstraintDescription: must be a valid domain name.
+
+17. NoEcho with AllowedPattern
+
+Parameters:
+  AdminPassword:
+    Description: Admin password
+    Type: String
+    NoEcho: True
+    AllowedPattern: '(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}'
+    ConstraintDescription: must contain at least one uppercase letter, one lowercase letter, and one number.
+
+18. ConstraintDescription for IP Range
+
+Parameters:
+  IPRange:
+    Description: IP range for access
+    Type: String
+    AllowedPattern: '^(\d{1,3}\.){3}\d{1,3}/\d{1,2}$'
+    ConstraintDescription: must be a valid IP range in CIDR notation.
+
+19. MinValue and MaxValue with ConstraintDescription
+
+Parameters:
+  Timeout:
+    Description: Timeout value in seconds
+    Type: Number
+    MinValue: 30
+    MaxValue: 300
+    Default: 60
+    ConstraintDescription: Timeout must be between 30 and 300 seconds.
+
+20. AllowedValues for Environment Type
+
+Parameters:
+  EnvironmentType:
+    Description: The environment type
+    Type: String
+    AllowedValues:
+      - dev
+      - test
+      - prod
+
+
+Example  ::::   
+ex:
+Parameters:
+  AvailabilityZones:
+    Description: List of Availability Zones
+    Type: CommaDelimitedList
+    Default: us-east-1a,us-east-1b,us-east-1c
+
+ex:
+
+Parameters:
+  SubnetIDs:
+    Description: List of Subnet IDs
+    Type: CommaDelimitedList
+    Default: subnet-1234abcd,subnet-5678efgh,subnet-90ab12cd
+ex: 
+
+Parameters:
+  SecurityGroupIDs:
+    Description: List of Security Group IDs
+    Type: CommaDelimitedList
+    Default: sg-12345678,sg-23456789,sg-34567890
+ex:
+
+Parameters:
+  InstanceIDs:
+    Description: List of EC2 Instance IDs
+    Type: CommaDelimitedList
+    Default: i-1234abcd,i-5678efgh,i-90ab12cd
+
+
+ex:
+
+Parameters:
+  InstanceIDs:
+    Description: List of EC2 Instance IDs
+    Type: CommaDelimitedList
+    Default: i-1234abcd,i-5678efgh,i-90ab12cd
+
+ex:
+
+Parameters:
+  DBSubnets:
+    Description: Comma separated list of subnet IDs for DB
+    Type: CommaDelimitedList
+    Default: subnet-1234abcd,subnet-5678efgh,subnet-90ab12cd
+ex:
+
+Parameters:
+  DBSubnets:
+    Description: Comma separated list of subnet IDs for DB
+    Type: CommaDelimitedList
+    Default: subnet-1234abcd,subnet-5678efgh,subnet-90ab12cd
+ex: 
+
+Parameters:
+  ELBSubnets:
+    Description: List of Subnet IDs for the Elastic Load Balancer
+    Type: CommaDelimitedList
+    Default: subnet-1234abcd,subnet-5678efgh,subnet-90ab12cd
+ex:
+Parameters:
+  ELBSubnets:
+    Description: List of Subnet IDs for the Elastic Load Balancer
+    Type: CommaDelimitedList
+    Default: subnet-1234abcd,subnet-5678efgh,subnet-90ab12cd
+ex:
+
+Parameters:
+  RouteTableIDs:
+    Description: List of Route Table IDs
+    Type: CommaDelimitedList
+    Default: rtb-12345678,rtb-23456789,rtb-34567890
+ex:
+
+Parameters:
+  BucketNames:
+    Description: List of S3 Bucket names
+    Type: CommaDelimitedList
+    Default: mybucket1,mybucket2,mybucket3
+ex:
+
+Parameters:
+  LambdaFunctionARNs:
+    Description: List of Lambda Function ARNs
+    Type: CommaDelimitedList
+    Default: arn:aws:lambda:us-east-1:123456789012:function:MyFunction1,arn:aws:lambda:us-east-1:123456789012:function:MyFunction2
+ex:
+
+Parameters:
+  IAMRoleARNs:
+    Description: List of IAM Role ARNs
+    Type: CommaDelimitedList
+    Default: arn:aws:iam::123456789012:role/Role1,arn:aws:iam::123456789012:role/Role2
+EX:
+Parameters:
+  TargetGroupARNs:
+    Description: List of Target Group ARNs
+    Type: CommaDelimitedList
+    Default: arn:aws:elasticloadbalancing:us-east-1:123456789012:targetgroup/MyTargetGroup1,arn:aws:elasticloadbalancing:us-east-1:123456789012:targetgroup/MyTargetGroup2
+
+ex:
+
+Parameters:
+  ElasticIPs:
+    Description: List of Elastic IP Addresses
+    Type: CommaDelimitedList
+    Default: 54.123.45.67,54.234.56.78,54.345.67.89
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
