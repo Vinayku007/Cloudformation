@@ -101,3 +101,225 @@ Resources:
       PubliclyAccessible: true
       VPCSecurityGroups:
         - !Ref SecurityGroupForRdsInstance
+
+#.............................................................................................................................................................#
+#.............................................................................................................................................................#
+
+Example 1: Selecting a Subnet
+
+Parameters:
+  SubnetIds:
+    Type: CommaDelimitedList
+    Default: "subnet-12345,subnet-67890,subnet-abcdef"
+
+Resources:
+  MyEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      SubnetId: !Select [ 0, !Ref SubnetIds ]
+      ImageId: ami-0abcdef1234567890
+      InstanceType: t2.micro
+
+Example 2: Choosing an Availability Zone
+
+Parameters:
+  AvailabilityZones:
+    Type: CommaDelimitedList
+    Default: "us-west-1a,us-west-1b,us-west-1c"
+
+Resources:
+  MyAutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      VPCZoneIdentifier:
+        - !Select [ 1, !Ref AvailabilityZones ]
+      LaunchConfigurationName: MyLaunchConfig
+      MinSize: 1
+      MaxSize: 5
+Parameters:
+  AvailabilityZones:
+    Type: CommaDelimitedList
+    Default: "us-west-1a,us-west-1b,us-west-1c"
+
+Resources:
+  MyAutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      VPCZoneIdentifier:
+        - !Select [ 1, !Ref AvailabilityZones ]
+      LaunchConfigurationName: MyLaunchConfig
+      MinSize: 1
+      MaxSize: 5
+
+Example 3: Selecting an AMI ID
+
+Mappings:
+  RegionMap:
+    us-east-1:
+      "AMI": "ami-0abcdef1234567890"
+    us-west-2:
+      "AMI": "ami-1234567890abcdef"
+
+Resources:
+  MyInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Select
+        - 0
+        - - !FindInMap [ RegionMap, !Ref "AWS::Region", "AMI" ]
+          - ami-1234567890abcdefg
+      InstanceType: t2.micro
+      KeyName: my-key-pair
+
+Example 4: Choosing from a List of Security Groups
+
+Parameters:
+  SecurityGroupIds:
+    Type: CommaDelimitedList
+    Default: "sg-12345,sg-67890,sg-abcdef"
+
+Resources:
+  MyInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      SecurityGroupIds:
+        - !Select [ 1, !Ref SecurityGroupIds ]
+      ImageId: ami-0abcdef1234567890
+      InstanceType: t2.micro
+
+Example 5: Picking a Port for a Security Group Ingress Rule
+
+Parameters:
+  AllowedPorts:
+    Type: CommaDelimitedList
+    Default: "80,443,8080"
+
+Resources:
+  MySecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow specific ports
+      VpcId: vpc-12345
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: !Select [ 0, !Ref AllowedPorts ]
+          ToPort: !Select [ 0, !Ref AllowedPorts ]
+          CidrIp: 0.0.0.0/0
+
+Example 6: Specifying Availability Zones in an Auto Scaling Group
+
+Parameters:
+  AZs:
+    Type: CommaDelimitedList
+    Default: "us-east-1a,us-east-1b,us-east-1c"
+
+Resources:
+  MyAutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      AvailabilityZones:
+        - !Select [ 0, !Ref AZs ]
+        - !Select [ 1, !Ref AZs ]
+      LaunchConfigurationName: MyLaunchConfig
+      MinSize: 1
+      MaxSize: 5
+
+Example 7: Selecting a Backup Window
+
+Parameters:
+  BackupWindows:
+    Type: CommaDelimitedList
+    Default: "00:00-02:00,02:00-04:00,04:00-06:00"
+
+Resources:
+  MyDBInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBInstanceClass: db.t3.medium
+      Engine: mysql
+      BackupRetentionPeriod: 7
+      PreferredBackupWindow: !Select [ 1, !Ref BackupWindows ]
+      AllocatedStorage: 100
+      MasterUsername: admin
+      MasterUserPassword: password
+
+Example 8: Choosing a Route Table
+
+Parameters:
+  RouteTableIds:
+    Type: CommaDelimitedList
+    Default: "rtb-12345,rtb-67890,rtb-abcdef"
+
+Resources:
+  MyRoute:
+    Type: AWS::EC2::Route
+    Properties:
+      RouteTableId: !Select [ 0, !Ref RouteTableIds ]
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: igw-12345678
+
+Example 9: Specifying Elastic IPs
+
+Parameters:
+  ElasticIPs:
+    Type: CommaDelimitedList
+    Default: "eipalloc-12345,eipalloc-67890"
+
+Resources:
+  MyNatGateway:
+    Type: AWS::EC2::NatGateway
+    Properties:
+      AllocationId: !Select [ 0, !Ref ElasticIPs ]
+      SubnetId: subnet-0123456789abcdef0
+
+Example 10: Picking Log Group Names
+
+Parameters:
+  LogGroups:
+    Type: CommaDelimitedList
+    Default: "MyAppLogs,MySecurityLogs,MyAuditLogs"
+
+Resources:
+  MyLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Select [ 2, !Ref LogGroups ]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
