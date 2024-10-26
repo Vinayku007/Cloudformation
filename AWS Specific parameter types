@@ -97,3 +97,54 @@ Resources:
       PubliclyAccessible: true
       VPCSecurityGroups:
         - !Ref SecurityGroupForRdsInstance
+
+#............................................................................................................................................................#
+
+
+
+Ex: AWS::EC2::Image::Id
+
+Parameters:
+  ImageId:
+    Type: 'AWS::EC2::Image::Id'
+    Description: The AMI ID for the EC2 instance
+
+
+Ex: AWS::EC2::KeyPair::KeyName
+
+Parameters:
+  KeyPairName:
+    Type: 'AWS::EC2::KeyPair::KeyName'
+    Description: The EC2 Key Pair for SSH access
+
+Ex: AWS::EC2::Subnet::Id
+
+Parameters:
+  SubnetId:
+    Type: 'AWS::EC2::Subnet::Id'
+    Description: The subnet ID for the EC2 instance
+
+
+Ex:  AWS::EC2::VPC:: Id
+
+Parameters:
+  VpcId:
+    Type: 'AWS::EC2::VPC::Id'
+    Description: The VPC ID to launch the resources in
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
