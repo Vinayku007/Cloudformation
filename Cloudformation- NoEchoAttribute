@@ -79,3 +79,68 @@ Resources:
       PubliclyAccessible: true
       VPCSecurityGroups:
         - !Ref SecurityGroupForRdsInstance
+
+
+# NoEcho Examples #
+
+
+Ex: Database
+
+Parameters:
+  DbPassword:
+    Description: Password for the database
+    Type: String
+    NoEcho: True
+    MaxLength: 16
+    ConstraintDescription: Must be a string with a maximum length of 16 characters.
+
+Ex: api key
+
+Parameters:
+  ApiKey:
+    Description: API Key for accessing external services
+    Type: String
+    NoEcho: True
+    MinLength: 32
+    MaxLength: 64
+    ConstraintDescription: Must be a string with a length between 32 and 64 characters.
+
+Ex: Admin Email
+
+Parameters:
+  AdminEmail:
+    Description: Email address of the admin user
+    Type: String
+    NoEcho: True
+    AllowedPattern: '^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$'
+    ConstraintDescription: Must be a valid email address.
+
+Ex: SSl Certificate Arn 
+
+Parameters:
+  SSLCertificateArn:
+    Description: ARN of the SSL certificate
+    Type: String
+    NoEcho: True
+    MinLength: 20
+    MaxLength: 2048
+    ConstraintDescription: Must be a valid ARN.
+
+Ex:  LDAP Password
+
+Parameters:
+  LDAPPassword:
+    Description: Password for LDAP server
+    Type: String
+    NoEcho: True
+    MaxLength: 30
+    ConstraintDescription: Must be a string with a maximum length of 30 characters.
+
+
+
+
+
+
+
+
+
