@@ -94,3 +94,127 @@ Resources:
       PubliclyAccessible: true
       VPCSecurityGroups:
         - !Ref SecurityGroupForRdsInstance
+
+
+#..............................................................................................................................................................#
+
+
+Example 1: EC2 Instance in Multiple Subnets
+
+Parameters:
+  SubnetIds:
+    Description: List of Subnet IDs for the EC2 instances
+    Type: CommaDelimitedList
+    Default: "subnet-12345,subnet-67890"
+
+Resources:
+  MyEC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      SubnetId: !Select [ 0, !Ref SubnetIds ]
+      ImageId: ami-0abcdef1234567890
+      InstanceType: t2.micro
+
+
+Example 2: Security Group Rules for Multiple Ports
+
+Parameters:
+  AllowedPorts:
+    Description: List of allowed ports
+    Type: CommaDelimitedList
+    Default: "80,443"
+
+Resources:
+  MySecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Allow HTTP and HTTPS
+      VpcId: vpc-0abcd1234efgh5678
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: !Select [ 0, !Ref AllowedPorts ]
+          ToPort: !Select [ 0, !Ref AllowedPorts ]
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: !Select [ 1, !Ref AllowedPorts ]
+          ToPort: !Select [ 1, !Ref AllowedPorts ]
+          CidrIp: 0.0.0.0/0
+
+
+
+Example 3: Multi-AZ RDS Instance
+
+Parameters:
+  AvailabilityZones:
+    Description: List of Availability Zones
+    Type: CommaDelimitedList
+    Default: "us-east-1a,us-east-1b"
+
+Resources:
+  MyDBInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      DBInstanceClass: db.t3.medium
+      Engine: mysql
+      MultiAZ: true
+      AvailabilityZone: !Select [ 0, !Ref AvailabilityZones ]
+      AllocatedStorage: 100
+      MasterUsername: admin
+      MasterUserPassword: password
+
+
+Example 4: Lambda Function with Multiple Subnets
+
+Parameters:
+  LambdaSubnets:
+    Description: List of subnet IDs for the Lambda function
+    Type: CommaDelimitedList
+    Default: "subnet-11111,subnet-22222"
+
+Resources:
+  MyLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Handler: index.handler
+      Role: arn:aws:iam::123456789012:role/MyLambdaRole
+      Code:
+        S3Bucket: my-lambda-code
+        S3Key: code.zip
+      VpcConfig:
+        SubnetIds: !Ref LambdaSubnets
+
+Example 5: ECS Service Across Multiple Subnets
+
+Parameters:
+  ECSSubnetIds:
+    Description: List of subnet IDs for the ECS service
+    Type: CommaDelimitedList
+    Default: "subnet-abcde,subnet-fghij"
+
+Resources:
+  MyECSService:
+    Type: AWS::ECS::Service
+    Properties:
+      Cluster: !Ref MyECSCluster
+      TaskDefinition: !Ref MyECSTaskDefinition
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          Subnets: !Ref ECSSubnetIds
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
