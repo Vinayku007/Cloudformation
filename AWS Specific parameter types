@@ -1,0 +1,99 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Creating cloudformation template step by step
+Parameters:
+  DbClass:
+    Description: Config-Instance-class
+    Type: String
+    Default: "db.t4g.micro"
+    AllowedValues:
+      - db.t4g.micro
+      - db.t3.micro
+  MasterUserName:
+    Description: User Name For the Db Instance
+    Type: String
+    Default: "Vinaykumar143"
+    MinLength: 13
+    AllowedPattern: "[A-Z0-9][a-zA-Z0-9]*"
+    NoEcho: True
+  MasterUserPassword:
+    Description: Password for the Rds Instance
+    Type: String
+    MaxLength: 15
+    Default: "1234567891011"
+    NoEcho: True
+  MultiAZ:
+    Description: true or false
+    Type: String
+    Default: "false"
+    AllowedValues:
+      - true
+      - false
+  AllocatedStorage:
+    Description: Storage capacity for the Rds Instance
+    Type: Number
+    MinValue: 20
+    MaxValue: 25
+    Default: 20
+    ConstraintDescription: AllocatedStorage cannot be less than 20 or greater than 25.
+  SecurityGroupPorts:
+    Type: CommaDelimitedList
+    Description: "port no as a list:<Web-server-instance>,<Database-port>"
+    Default: "80,3306"
+  DbSubnets:
+    Type: List<AWS::EC2::Subnet::Id>                                          # very very important #
+    Description: "Db subnet ids as a list: <Subnet1>,<Subnet2>,...."
+  VpcId:
+    Type: AWS::EC2::VPC::Id                                                    # very very important #
+    Description: A Valid vpc id in your aws account  
+
+Resources:
+  WebServerSecurityGroupForRdsInstance:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Creating security group for instance.
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 
+            Fn::Select: [0, !Ref SecurityGroupPorts]
+          ToPort: !Select [0, !Ref SecurityGroupPorts]
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: Security Group for RDS Instance
+
+  SecurityGroupForRdsInstance:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Creating security group port no 3306 for RDS instance
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: !Select [1, !Ref SecurityGroupPorts]
+          ToPort: !Select [1, !Ref SecurityGroupPorts]
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: Security Group for RDS Instance
+
+  SubnetGroupforRdsInstance:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: Creating subnets for RDS instance
+      SubnetIds: !Ref DbSubnets
+
+  RdsInstance:
+    Type: AWS::RDS::DBInstance
+    DeletionPolicy: Delete
+    Properties:
+      AllocatedStorage: !Ref AllocatedStorage
+      DBInstanceClass: !Ref DbClass
+      BackupRetentionPeriod: 0
+      DBSubnetGroupName: !Ref SubnetGroupforRdsInstance
+      Engine: mysql
+      MasterUsername: !Ref MasterUserName
+      MasterUserPassword: !Ref MasterUserPassword
+      MultiAZ: !Ref MultiAZ
+      PubliclyAccessible: true
+      VPCSecurityGroups:
+        - !Ref SecurityGroupForRdsInstance
