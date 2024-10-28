@@ -1,0 +1,59 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Creating S3 buckets.
+
+Parameters:
+  # S3 bucket versioning 
+
+  EnableVersioning:
+    Description: Whether to enable or disable versioning for the bucket
+    Type: String
+    AllowedValues:
+      - Enabled
+      - Suspended
+    Default: Enabled
+
+  # File/Object Expiration parameters 
+
+  ExpirationInDays:
+    Description: Number of days before objects expire
+    Type: Number
+    MinValue: 1
+    Default: 2
+    MaxValue: 3
+
+  BucketName: # this section is very very important ......#                                           
+    Description: The name of the S3 bucket
+    Type: String
+    Default: vinaykumar14     #....Bucket name is here ....please do not confuse ...#
+
+  PolicyDocument:
+    Description: The bucket policy document
+    Type: String
+    Default: |
+      {
+        "Id": "Policy1730112381495",
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Sid": "Stmt1730112379272",
+            "Action": [
+              "s3:GetObject",
+              "s3:PutObject"
+            ],
+            "Effect": "Allow",
+            "Resource": "arn:aws:s3:::vinaykumar14/*",
+            "Principal": "*"
+          }
+        ]
+      }
+
+Resources:
+  S3Buckets:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: Private
+      BucketName: !Ref BucketName
+      Tags:
+        - Key: Name
+          Value: Mys3Buckets
+    DeletionPolicy: Retain
