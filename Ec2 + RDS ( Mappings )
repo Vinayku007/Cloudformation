@@ -1,0 +1,135 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Creating CloudFormation template step by step
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: "Database Configuration"
+        Parameters:
+          - MultiAZ
+          - AllocatedStorage
+          - MasterUserName
+          - MasterUserPassword
+      - Label:
+          default: "Networking Setting Configuration"
+        Parameters:
+          - VpcId
+          - SecurityGroupPorts
+
+    ParameterLabels:
+      AllocatedStorage:
+        default: "Allocated Storage Size"
+
+Parameters:
+
+  MasterUserName:
+    Description: User Name for the DB Instance
+    Type: String
+    Default: Vinaykumar143
+    MinLength: 13
+    AllowedPattern: '[A-Z0-9][a-zA-Z0-9]*'
+    NoEcho: True
+
+  MasterUserPassword:
+    Description: Password for the RDS Instance
+    Type: String
+    MaxLength: 15
+    Default: 1234567891011
+    NoEcho: True
+
+  MultiAZ:
+    Description: Enable or disable Multi-AZ deployment (true/false)
+    Type: String
+    Default: false
+    AllowedValues: 
+      - true
+      - false
+
+  AllocatedStorage:
+    Description: Storage capacity for the RDS Instance
+    Type: Number
+    MinValue: 20
+    MaxValue: 25
+    Default: 20
+    ConstraintDescription: AllocatedStorage must be between 20 and 25.
+
+  SecurityGroupPorts:
+    Type: List<Number>
+    Description: 'Port numbers: <Web-server-instance>, <Database-port>'
+
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+    Description: A valid VPC ID in your AWS account.
+
+  EnvironmentName:
+    Type: String
+    AllowedValues:
+      - Production
+      - Test
+    Default: Test
+
+Mappings:
+  EnvironmentsOptions:
+    Production:
+      DbClass: db.t4g.micro
+    Test:
+      DbClass: db.t3.micro
+
+Resources:
+  WebServerSecurityGroupForRdsInstance:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for the web server instance.
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: !Select [0, !Ref SecurityGroupPorts]
+          ToPort: !Select [0, !Ref SecurityGroupPorts]
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: Security Group for Web Server
+
+  SecurityGroupForRdsInstance:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group with port 3306 for RDS instance.
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: !Select [1, !Ref SecurityGroupPorts]
+          ToPort: !Select [1, !Ref SecurityGroupPorts]
+          CidrIp: 0.0.0.0/0
+      Tags:
+        - Key: Name
+          Value: Security Group for RDS
+
+  SubnetGroupforRdsInstance:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: Subnet group for RDS instance.
+      SubnetIds:
+        - subnet-02f0290fa659ea33d
+        - subnet-060b33fcc8eb408a0
+        - subnet-0a5e06ed2c4395aa6
+      Tags:
+        - Key: Name
+          Value: Subnet Group for RDS
+
+  RdsInstance:
+    Type: AWS::RDS::DBInstance
+    DeletionPolicy: Delete
+    Properties:
+      AllocatedStorage: !Ref AllocatedStorage
+      DBInstanceClass: !FindInMap [EnvironmentsOptions, !Ref EnvironmentName, DbClass]
+      BackupRetentionPeriod: 0
+      DBSubnetGroupName: !Ref SubnetGroupforRdsInstance
+      Engine: mysql
+      MasterUsername: !Ref MasterUserName
+      MasterUserPassword: !Ref MasterUserPassword
+      MultiAZ: !Ref MultiAZ
+      PubliclyAccessible: true
+      VPCSecurityGroups:
+        - !Ref SecurityGroupForRdsInstance
+        - !Ref WebServerSecurityGroupForRdsInstance
