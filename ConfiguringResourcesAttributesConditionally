@@ -1,0 +1,98 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: A Database stack template that creates a master RDS instance and a read replica with security groups and subnet groups.
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Network Configuration
+        Parameters:
+          - VpcId
+          - DbSubnets
+
+Parameters:
+  DbSubnets:
+    Description: 'DB Subnet IDs as a list: <subnet1>,<subnet2>,...'
+    Type: List<AWS::EC2::Subnet::Id>
+  VpcId:
+    Description: A valid VPC ID in your account
+    Type: AWS::EC2::VPC::Id
+  Environment:
+    Type: String
+    AllowedValues:
+      - test
+      - production
+    Description: The environment for the stack (test or production)
+  MasterUserPassword:
+    Description: The master password for the database instance.
+    NoEcho: true
+    Type: String
+    MinLength: 8
+    MaxLength: 41
+    ConstraintDescription: Must be between 8 and 41 characters.
+
+Conditions:
+  EnvironmentIsProduction:
+    Fn::Equals:
+      - !Ref Environment
+      - production
+
+Resources:
+  DbSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      VpcId: !Ref VpcId
+      GroupDescription: Database Instance Security Group
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 3306
+          ToPort: 3306
+          CidrIp: 192.168.1.0/24  # Replace with your actual CIDR block for restricted access.
+
+  DbSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: Subnet group for the RDS instance
+      SubnetIds: !Ref DbSubnets
+
+  MasterDbInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      AllocatedStorage: 20
+      DBInstanceClass:
+        Fn::If:
+          - EnvironmentIsProduction
+          - db.t3.medium
+          - db.t3.micro
+      DBName: cloudformation_vinaykumar
+      DBSubnetGroupName: !Ref DbSubnetGroup
+      Engine: mysql
+      MasterUsername: dbadmin
+      MasterUserPassword: !Ref MasterUserPassword
+      MultiAZ: false
+      Port: 3306
+      PubliclyAccessible: true
+      VPCSecurityGroups:
+        - !Ref DbSecurityGroup
+      BackupRetentionPeriod: 7
+      StorageEncrypted: true
+
+  ReadReplica:
+    Type: AWS::RDS::DBInstance
+    Condition: EnvironmentIsProduction
+    Properties:
+      SourceDBInstanceIdentifier: !Ref MasterDbInstance
+      DBInstanceClass: db.t3.micro
+      Engine: mysql
+      PubliclyAccessible: true
+      VPCSecurityGroups:
+        - !Ref DbSecurityGroup
+
+Outputs:
+  MasterDbEndpoint:
+    Description: Endpoint for the Master DB Instance
+    Value: !GetAtt MasterDbInstance.Endpoint.Address
+  ReadReplicaEndpoint:
+    Description: Endpoint for the Read Replica
+    Condition: EnvironmentIsProduction
+    Value: !GetAtt ReadReplica.Endpoint.Address
